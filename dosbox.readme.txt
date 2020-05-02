@@ -1,0 +1,32 @@
+I started down a deep "rabbit hole" when I was testing DOSBOX for
+compatibility with PICEMU and PICDIS.
+
+PICEMU, a DOS program, looks at available video modes to see what is
+available, and adjusts the user interface accordingly.  The "best" UI uses
+VESA video mode 0x010B, 132 x 50 text mode, although it will fall back to
+80 x 50 VGA or 80 x 25 standard video if needed.
+
+The "normal" DOSBOX distribution, dosbox.com, does not support VESA mode
+0x010B, but I found a DOSBOX fork, dosbox-staging.github.io, that does
+support VESA 132 x 50 text.
+
+I also found that both the normal DOSBOX and DOSBOX-STAGING have a bug
+in the STDIN handle (inhereted from COMMAND.COM when a program starts).
+STDIN is not properly set up, which breaks the gets() function in the
+compiler I use.  I had to re-write some code in PICDIS (the disassembler)
+to make it work under DOSBOX.
+
+Also, a few notes about setting up DOSBOX for best performance.
+For the software I've written (CHIP-8, DEBUG-8, PICEMU, PICDIS), use
+   core=dynamic
+in DOSBOX.CONF instead of the default core=auto.  Since the code is not
+self-modifying, the result is a much faster execution (I've seen 5 or 10
+times faster), with the speed of PICEMU on an i7-4770 exceeding the speed
+of an actual processor.
+
+For the display, there is a parameter called ASPECT that sets the aspect
+ratio of displayed text.  For DOSBOX-STAGING, it's default is TRUE.  I
+find that the default DOS window looks "stretched", but 132 x 50 text
+looks OK.  For ASPECT=FALSE, the default DOS window looks OK but 132 x 50
+text looks a bit "squished."  The choice is yours, but knowing this you
+won't have to dig for an answer.
